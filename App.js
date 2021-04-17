@@ -1,23 +1,22 @@
+import 'react-native-gesture-handler';
 import React from 'react';
-import {View, Text, StyleSheet, Dimensions} from 'react-native';
+//import {View, Text} from 'react-native';
 import Home from './components/Home';
+import Location from './components/Location';
+
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
 
 //const {width, height} = Dimensions;
-
+const Stack = createStackNavigator();
 const App = () => {
   return (
-    <View style={styles.master}>
-      <Home />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home" headerMode="none">
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Map" component={Location} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  master: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    margin: 20,
-  },
-});
 export default App;
