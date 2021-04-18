@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet, View, Text} from 'react-native';
-import MapView, {PROVIDER_GOOGLE} from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
+import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
 
 const styles = StyleSheet.create({
   container: {
@@ -9,21 +9,89 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
+    flex: 1,
   },
 });
 
-const Location = () => {
+const Location = ({route}) => {
+  const {cordinates, search} = route.params;
+  const latitude = cordinates.lati;
+  const longitude = cordinates.longi;
+  const [region, setRegion] = React.useState({
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+    latitude: latitude,
+    longitude: longitude,
+  });
+  const [places, setPlaces] = React.useState([]);
+
+  React.useEffect(() => {
+    //console.log(route.params.cordinates);
+    getPlaces;
+  }, []);
+
+  const onRegionChange = () => {
+    setRegion(region);
+  };
+
+  const getPlacesUrl = (lat, long, type, apiKey) => {
+    const baseUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?`;
+    const location = `location=${lat},${long}&radius=${radius}`;
+    const typeData = `&types=${type}`;
+    const api = `&key=${apiKey}`;
+    return `${baseUrl}${location}${typeData}${api}`;
+  };
+
+  const getPlaces = () => {
+    //const {cordinates, search} = route.params;
+    const markers = [];
+    const url = getPlacesUrl(
+      latitude,
+      longitude,
+      1500,
+      search,
+      'AIzaSyBwBtfrORXlLY352Op5AZxsD5BSPwEgORM',
+    );
+    fetch(url)
+      .then(res => res.json())
+      .then(res => {
+        res.results.map((element, index) => {
+          const marketObj = {};
+          marketObj.id = element.id;
+          marketObj.name = element.name;
+          marketObj.photos = element.photos;
+          marketObj.rating = element.rating;
+          marketObj.vicinity = element.vicinity;
+          marketObj.marker = {
+            latitude: element.geometry.location.lat,
+            longitude: element.geometry.location.lng,
+          };
+
+          markers.push(marketObj);
+        });
+        //update our places array
+        setPlaces(places[markers]);
+      });
+  };
+
   return (
     <View style={styles.container}>
       <MapView
-        provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+        provider={PROVIDER_GOOGLE}
         style={styles.map}
-        region={{
-          latitude: 37.78825,
-          longitude: -122.4324,
-          latitudeDelta: 0.015,
-          longitudeDelta: 0.0121,
-        }}></MapView>
+        initialRegion={region}
+        onRegionChange={() => onRegionChange}>
+        {places.map((marker, index) => {
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: marker.marker.latitude,
+              longitude: marker.marker.longitude,
+            }}
+            title={marker.name}
+          />;
+        })}
+      </MapView>
     </View>
   );
 };
