@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 //import {NavigationStack} from '';
+import * as Animatable from 'react-native-animatable';
 import Geolocation from 'react-native-geolocation-service';
 //import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -24,6 +25,8 @@ const Home = ({navigation}) => {
     lati: 0,
   });
 
+  //const translateText = React.useRef(new Animated.Value(0)).current
+
   React.useEffect(() => {
     if (hasLocationPermission) {
       Geolocation.getCurrentPosition(
@@ -34,6 +37,20 @@ const Home = ({navigation}) => {
             lati: position.coords.latitude,
           });
           //console.log(cordinates);
+          fetch(
+            'https://maps.googleapis.com/maps/api/geocode/json?address=' +
+              cordinates.lati +
+              ',' +
+              cordinates.longi +
+              '&key=' +
+              'AIzaSyBwBtfrORXlLY352Op5AZxsD5BSPwEgORM',
+          )
+            .then(response => response.json())
+            .then(responseJson => {
+              console.log(
+                'ADDRESS GEOCODE is BACK!! => ' + JSON.stringify(responseJson),
+              );
+            });
         },
         error => console.log(error.code),
         {enableHighAccuracy: true},
@@ -55,22 +72,39 @@ const Home = ({navigation}) => {
         </View>
         <View style={styles.locationMain}>
           <Text style={{textAlign: 'center', color: '#666'}}>
-            Search places around you
+            Your current position
           </Text>
+
           <View style={styles.locationSelectorContainer}>
             <View style={{paddingRight: 10}}>
               <Icon name="md-location" size={30} color="green" />
             </View>
-            <Text style={{fontWeight: '700', fontSize: 18}}>
-              My current location
-            </Text>
+            <Animatable.Text
+              animation="fadeInRight"
+              duration={1000}
+              style={{fontWeight: '700', fontSize: 18}}>
+              Accra, Greater Accra. Ghana
+            </Animatable.Text>
           </View>
         </View>
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <View
+            style={{
+              width: width / 1.1,
+              marginBottom: 10,
+              backgroundColor: '#e6e6e6',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: 60,
+            }}>
+            <Text>
+              Longitude : {cordinates.longi} Latitude : {cordinates.lati}
+            </Text>
+          </View>
           <View style={styles.inputContainer}>
             <View style={{flex: 4, justifyContent: 'center', paddingLeft: 20}}>
               <TextInput
-                placeholder="Search a place here. Example restaurant"
+                placeholder="Enter name of a place here"
                 onChangeText={setUserSearch}
               />
             </View>
